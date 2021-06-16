@@ -34,7 +34,7 @@ public class Client {
 
             while (true) {
                 String message = sc.nextLine();
-                System.out.println("[Вы]: " + message);
+//                System.out.println("[Вы]: " + message);
 //                dataOutputStream.writeUTF(message);
 //                System.out.println("Клиент: " + message);
 //                dataOutputStream.writeUTF(message);
@@ -60,41 +60,41 @@ public class Client {
 
     public static void createDB() throws SQLException {
         stmt = connection.createStatement();
-//        stmt.execute("DROP TABLE IF EXISTS chatHistory;");
+        stmt.execute("DROP TABLE IF EXISTS chatHistory;");
         stmt.execute("CREATE TABLE IF NOT EXISTS chatHistory");
     }
 
-    public static synchronized void writeHistory(String msg) throws IOException {
-        File file = new File("chatHistory.db");
-        if (!file.exists()) {
-            file.createNewFile();
-        }
-        try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(file))) {
-            dataOutputStream.writeUTF(msg);
-        }
-    }
-    public static synchronized void readHistory() {
-        File file = new File("chatHistory.db");
-        List<String> hstIn = new LinkedList<>();
-        try(DataInputStream dataInputStream = new DataInputStream((new FileInputStream(file)))) {
-            dataInputStream.readUTF();
-//            System.out.println(file.length());
-            for (int j = 0; j < 100; j++) {
-                String string = dataInputStream.readUTF();
-                hstIn.add("\n" + string);
-            }
-        }  catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (hstIn.size() >= 100) {
-            for (int  i = 0; i < 100; i++) {
-                System.out.println(hstIn.get(hstIn.size() - i));
-            }
-        } else {
-            System.out.println(hstIn);
-        }
-
-    }
+//    public static synchronized void writeHistory(String msg) throws IOException {
+//        File file = new File("chatHistory.db");
+//        if (!file.exists()) {
+//            file.createNewFile();
+//        }
+//        try (DataOutputStream dataOutputStream = new DataOutputStream(new FileOutputStream(file))) {
+//            dataOutputStream.writeUTF("\n" + msg);
+//        }
+//    }
+//    public static synchronized void readHistory() {
+//        File file = new File("chatHistory.db");
+//        List<String> hstIn = new LinkedList<>();
+//        try(DataInputStream dataInputStream = new DataInputStream((new FileInputStream(file)))) {
+////            dataInputStream.readUTF();
+////            System.out.println(file.length());
+//            for (int j = 0; j < 100; j++) {
+//                String string = dataInputStream.readUTF();
+//                hstIn.add("\n" + string);
+//            }
+//        }  catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        if (hstIn.size() >= 100) {
+//            for (int  i = 0; i < 100; i++) {
+//                System.out.println(hstIn.get(hstIn.size() - i));
+//            }
+//        } else {
+//            System.out.println(hstIn);
+//        }
+//
+//    }
 
     public static void CloseDB() throws ClassNotFoundException, SQLException {
         connection.close();

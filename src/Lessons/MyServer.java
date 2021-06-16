@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class MyServer {
@@ -22,14 +20,12 @@ public class MyServer {
     private AuthService authService;
     private static Connection connectionHistory;
     private static Statement stmt;
+    private HistoryWriter historyShower = new HistoryWriter();
 
 
 
 
     public MyServer() {
-
-
-
 
         try (ServerSocket server = new ServerSocket(ChatConstants.PORT)) {
             authService = new BaseAuthService();
@@ -41,11 +37,23 @@ public class MyServer {
                 System.out.println("Сервер ожидает подключения");
                 Socket socket = server.accept();
                 System.out.println("Клиент подключился");
-                Client.readHistory();
-                ExecutorService executorService = Executors.newFixedThreadPool(10);
-                executorService.execute(new ClientHandler(this, socket));
-                executorService.shutdown();
-                return;
+                StringBuilder historyString = null;
+                try {
+                    historyString = historyShower.getHistoryChat();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(historyString != null){
+                    String[] mass = historyString.toString().split("\n");
+                    for (int i = 0; i < mass.length; i++) {
+                        String[] partsMass = mass[i].split(" ", 2);
+                        System.out.println((partsMass[0] + partsMass[1]));
+                    }
+                }
+
+                //               Client.readHistory();
+                new ClientHandler(this, socket);
+
             }
 
         } catch (IOException e) {

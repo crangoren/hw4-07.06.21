@@ -20,4 +20,6 @@ public class ChatConstants {
 
     public static final long MAX_DELAY_TIME = 120;
 
+    public static final int VIEWCOUNT = 2;
+
 }

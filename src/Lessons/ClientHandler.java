@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-public class ClientHandler implements Runnable{
+public class ClientHandler {
 
 
 
@@ -25,6 +25,7 @@ public class ClientHandler implements Runnable{
     private boolean isAuth = false;
     private static Connection connectionHistory;
     private static Statement stmt;
+    private HistoryWriter historyDB = new HistoryWriter();
 
 //    File history = new File("history.db");
 
@@ -49,9 +50,9 @@ public class ClientHandler implements Runnable{
             new Thread(() -> {
                 try {
                     authentification();
-//                    readMessages();
-//                    new Client();
-                } catch (IOException | SQLException e) {
+                    readMessages();
+                    new Client();
+                } catch (IOException | SQLException | ClassNotFoundException e) {
                     e.printStackTrace();
                 } finally {
                     closeConnection();
@@ -65,16 +66,12 @@ public class ClientHandler implements Runnable{
 
 
 
-    public void run() {
-
-
-        try {
-            DataBaseApp.connect();
-
+    private synchronized void readMessages() throws IOException, SQLException, ClassNotFoundException {
+        DataBaseApp.connect();
         while (true) {
             String messageFromClient = inputStream.readUTF();
-
-            Client.writeHistory(messageFromClient); //вызов метода записи
+            historyDB.saveHistory(name, messageFromClient);
+//            Client.writeHistory(messageFromClient); //вызов метода записи
 
             System.out.println("от " + name + ": " + messageFromClient);
 
@@ -110,11 +107,6 @@ public class ClientHandler implements Runnable{
             }
 
         }
-        } catch (ClassNotFoundException | SQLException | IOException e) {
-            e.printStackTrace();
-        } finally {
-            ClientHandler.this.closeConnection();
-        }
     }
 
     private void authentification() throws IOException, SQLException {
@@ -135,6 +127,7 @@ public class ClientHandler implements Runnable{
                         name = nick.get();
                         server.subscribe(this);
                         server.broadcastMessage(name + " вошел в чат");
+
 
 //                        DataBaseApp.createHistoryDB();
 
