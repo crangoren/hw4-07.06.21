@@ -46,6 +46,8 @@ public class HistoryWriter {
         if (!file.exists()){
             return null;
         }
+
+
         StringBuilder stringBuilder = new StringBuilder();
         FileInputStream fileInputStream = new FileInputStream(file);
         BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream));
