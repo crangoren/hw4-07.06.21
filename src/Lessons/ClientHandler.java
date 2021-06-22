@@ -6,13 +6,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Logger;
 
-public class ClientHandler {
+public class ClientHandler implements Runnable{
 
 
 
@@ -50,9 +47,9 @@ public class ClientHandler {
             new Thread(() -> {
                 try {
                     authentification();
-                    readMessages();
+//                    readMessages();
                     new Client();
-                } catch (IOException | SQLException | ClassNotFoundException e) {
+                } catch (IOException | SQLException e) {
                     e.printStackTrace();
                 } finally {
                     closeConnection();
@@ -66,16 +63,33 @@ public class ClientHandler {
 
 
 
-    private synchronized void readMessages() throws IOException, SQLException, ClassNotFoundException {
-        DataBaseApp.connect();
-        while (true) {
-            String messageFromClient = inputStream.readUTF();
-            historyDB.saveHistory(name, messageFromClient);
+//    private synchronized void readMessages() throws IOException, SQLException, ClassNotFoundException {
+        @Override
+        public void run() {
+
+            try {
+                DataBaseApp.connect();
+            } catch (ClassNotFoundException | SQLException e) {
+                e.printStackTrace();
+            }
+            while (true) {
+                String messageFromClient = null;
+                try {
+                    messageFromClient = inputStream.readUTF();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    historyDB.saveHistory(name, messageFromClient);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 //            Client.writeHistory(messageFromClient); //вызов метода записи
 
             System.out.println("от " + name + ": " + messageFromClient);
 
-            if (messageFromClient.equals(ChatConstants.STOP_WORD)) {
+                assert messageFromClient != null;
+                if (messageFromClient.equals(ChatConstants.STOP_WORD)) {
                 return;
             } else if (messageFromClient.startsWith(ChatConstants.SEND_TO_LIST)) {
                 String[] splittedStr = messageFromClient.split("\\s+");
@@ -97,7 +111,7 @@ public class ClientHandler {
                 for (int i = 2; i < messageArr.length; i++) {
                     messageArr[i] = messageArr[i].replaceAll("[^\\w]", "");
                 }
-                String message = messageArr.toString();
+                String message = Arrays.toString(messageArr);
 
                 server.privateMessage(message, target);
 
@@ -107,7 +121,9 @@ public class ClientHandler {
             }
 
         }
-    }
+        }
+//    }
+
 
     private void authentification() throws IOException, SQLException {
 
@@ -175,6 +191,7 @@ public class ClientHandler {
     LocalDateTime getConnectTime() {
         return connectTime;
     }
+
 
 
 

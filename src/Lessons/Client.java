@@ -24,7 +24,7 @@ public class Client {
 
 
         connection();
-        try (Socket socket = new Socket("localhost", 8149)) {
+        try (Socket socket = new Socket("localhost", ChatConstants.PORT)) {
 
             Scanner in = new Scanner(socket.getInputStream());
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);

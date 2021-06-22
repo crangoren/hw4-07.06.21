@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class MyServer {
@@ -38,6 +40,9 @@ public class MyServer {
                 Socket socket = server.accept();
                 System.out.println("Клиент подключился");
                 StringBuilder historyString = null;
+                ExecutorService executorService = Executors.newFixedThreadPool(10);
+                executorService.execute( new ClientHandler(this, socket));
+                executorService.shutdown();
                 try {
                     historyString = historyShower.getHistoryChat();
                 } catch (IOException e) {
